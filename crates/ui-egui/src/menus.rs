@@ -1131,6 +1131,9 @@ pub fn menu_bar(app: &mut PhotocraftApp, ui: &mut egui::Ui) -> f32 {
             nav.bar_bottom = Some(ui.max_rect().bottom());
             let mut buttons = Vec::with_capacity(TOP_MENUS.len());
             for top in TOP_MENUS {
+                if top == "Help" && app.services.embedded {
+                    continue;
+                }
                 // egui's menu_button toggles on release; these titles open on the press (one
                 // gesture can press, drag to an item and release), so each drives its popup.
                 let title = ui.add(egui::Button::new(egui::RichText::new(crate::i18n::tr(lang, top)).color(t.text_dim)));

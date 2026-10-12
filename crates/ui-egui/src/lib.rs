@@ -418,6 +418,9 @@ pub struct Services {
     /// Object Selection's segmenter, in place of the built-in GrabCut: a shell can run a learned
     /// model (off the UI thread) and apply its mask itself. `None` keeps GrabCut.
     pub object_select: Option<ObjectSelectFn>,
+    /// PhotoCraft runs inside another product's shell: no PhotoCraft brand mark, community
+    /// links (Discord, GitHub, website), Help menu or appearance toggle, and a plain Home screen.
+    pub embedded: bool,
     /// OS clipboard images: copies go out, screenshots and images from other apps come in.
     pub clipboard_set_image: Option<ClipboardSetFn>,
     pub clipboard_get_image: Option<ClipboardGetFn>,

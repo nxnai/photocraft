@@ -553,7 +553,7 @@ pub fn title_bar(app: &mut PhotocraftApp, ui: &mut egui::Ui) {
                     // The caption buttons keep the right end; the menus start beside them.
                     ui.add_space(crate::titlebar::WIDTH + 4.0);
                 }
-                if !system {
+                if !system && !app.services.embedded {
                     let side = if t.pro { 18.0 } else { 20.0 };
                     let (mark, _) = ui.allocate_exact_size(vec2(side, side), Sense::hover());
                     crate::brand::paint_mark(ui, mark);
@@ -616,7 +616,7 @@ pub fn title_bar(app: &mut PhotocraftApp, ui: &mut egui::Ui) {
                         photocraft_engine::prefs::AppearanceMode::Light => ("sun", tl!("Light")),
                     };
                     let appearance_tip = format!("{}: {}", tl!("Appearance Mode"), appearance_label);
-                    if icons_shown >= 2 {
+                    if icons_shown >= 2 && !app.services.embedded {
                         let button = icons::button(ui, theme_icon, 28.0, false, &appearance_tip);
                         if button.clicked() {
                             crate::prefs_ui::cycle_appearance(app, ui.ctx());
@@ -625,7 +625,7 @@ pub fn title_bar(app: &mut PhotocraftApp, ui: &mut egui::Ui) {
                     }
                     // The community Discord, one click away while the bar has room for it
                     // (narrow windows drop it first; it is also Help › Discord).
-                    if ui.available_width() >= DISCORD_ROOM {
+                    if ui.available_width() >= DISCORD_ROOM && !app.services.embedded {
                         let discord = egui::Button::image_and_text(
                             icons::image("message-square", 14.0, t.text_dim),
                             egui::RichText::new(tl!("Discord")).color(t.text_dim).size(12.0),

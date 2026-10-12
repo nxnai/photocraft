@@ -751,7 +751,13 @@ impl Tokens {
     pub fn dark(&self) -> bool {
         matches!(
             self.kind,
-            ThemeKind::Studio | ThemeKind::Pro | ThemeKind::ProMedium | ThemeKind::SolarizedDark | ThemeKind::AdwaitaDark | ThemeKind::BreezeDark
+            ThemeKind::Studio
+                | ThemeKind::Pro
+                | ThemeKind::ProMedium
+                | ThemeKind::SolarizedDark
+                | ThemeKind::AdwaitaDark
+                | ThemeKind::BreezeDark
+                | ThemeKind::Arden
         )
     }
 }

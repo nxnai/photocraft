@@ -605,6 +605,13 @@ pub fn options_bar(app: &mut PhotocraftApp, ui: &mut egui::Ui, tool: Tool) -> bo
                 report_smart_result(app, r, tl!("No subject found — try Object Selection or the Lasso"));
             }
         }
+        // A shell's segmenter (`Services::object_select`) takes a click or a rectangle on the
+        // flattened image; it has nothing to set.
+        Tool::ObjectSelection if app.services.object_select.is_some() => {
+            opt(ui, "Click the object or drag a box around it");
+            crate::widgets::vline(ui, 22.0);
+            opt(ui, &format!("{} adds  ·  {} subtracts  ·  [ ] smaller or larger part", crate::shortcuts::pretty("Shift"), crate::shortcuts::pretty("Alt")));
+        }
         Tool::ObjectSelection => {
             crate::widgets::checkbox(ui, &mut o.sample_all_layers, tl!("Sample All Layers"));
             opt(ui, tl!("Drag a rectangle around the object"));
