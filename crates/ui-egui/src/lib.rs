@@ -380,6 +380,24 @@ pub type ObjectSelectFn = Box<dyn FnMut(ObjectSelectRequest) -> bool>;
 /// and the pointer in document pixels (`None` off the canvas or while dragging).
 pub type AiSelectCanvasFn = Box<dyn FnMut(&egui::Painter, egui::Rect, Option<[f64; 2]>)>;
 
+/// A command the shell adds: listed in its menu and in the command palette (⌘F), run by its
+/// shortcut, and runnable as a toolbar button (see [`ToolboxAction::command`]).
+pub struct ShellCommand {
+    pub id: &'static str,
+    pub label: &'static str,
+    /// The menu it is listed in, e.g. `&["Image", "Adjustments"]`.
+    pub menu: &'static [&'static str],
+    /// Its default shortcut, in PhotoCraft's notation (`"Cmd+Shift+M"`).
+    pub shortcut: Option<&'static str>,
+    pub run: Box<dyn FnMut()>,
+    /// Shown checked in its menu (a toggle), when set.
+    pub checked: Option<Box<dyn Fn() -> bool>>,
+}
+
+/// Draws the shell's own chrome inside the document area (between the toolbar and the dock), just
+/// before the canvas takes what is left: panels added here sit beside or under the canvas.
+pub type DocumentChromeFn = Box<dyn FnMut(&mut egui::Ui)>;
+
 /// A button the shell adds to the toolbar, below the tools.
 pub struct ToolboxAction {
     /// An icon name (`icons::exists`).
@@ -434,6 +452,10 @@ pub struct Services {
     pub ai_select_canvas: Option<AiSelectCanvasFn>,
     /// The shell's own toolbar buttons.
     pub toolbox_actions: Vec<ToolboxAction>,
+    /// The shell's own commands (menus, ⌘F, shortcuts).
+    pub commands: Vec<ShellCommand>,
+    /// The shell's chrome around the canvas (see [`DocumentChromeFn`]).
+    pub document_chrome: Option<DocumentChromeFn>,
     /// PhotoCraft runs inside another product's shell: no PhotoCraft brand mark, community
     /// links (Discord, GitHub, website), Help menu or appearance toggle, and a plain Home screen.
     pub embedded: bool,
@@ -1736,6 +1758,9 @@ impl eframe::App for PhotocraftApp {
         }
         let t = theme::Tokens::get(&ctx);
         let backdrop = if chrome { prefs_ui::pasteboard_color(self).unwrap_or(t.canvas) } else { egui::Color32::BLACK };
+        if chrome && let Some(document_chrome) = self.services.document_chrome.as_mut() {
+            document_chrome(ui);
+        }
         egui::CentralPanel::default().frame(egui::Frame::NONE.fill(backdrop)).show(ui, |ui| {
             canvas::document_area(self, ui);
         });

@@ -161,6 +161,10 @@ pub fn invoke(app: &mut PhotocraftApp, ctx: &egui::Context, id: &str, params: Va
 
 /// [`invoke`] without the unsaved-changes prompt, for once the user has already answered it.
 pub(crate) fn invoke_unguarded(app: &mut PhotocraftApp, ctx: &egui::Context, id: &str, params: Value) -> Result<Value, String> {
+    if let Some(command) = app.services.commands.iter_mut().find(|c| c.id == id) {
+        (command.run)();
+        return Ok(Value::Null);
+    }
     if id == "ui.symmetryTransform" {
         return crate::symmetry_ui::begin(app).map(|_| Value::Null);
     }
@@ -656,6 +660,9 @@ fn open_path(app: &mut PhotocraftApp, path: &str) -> Result<Value, String> {
 }
 
 pub fn is_enabled(app: &PhotocraftApp, id: &str) -> bool {
+    if app.services.commands.iter().any(|c| c.id == id) {
+        return true;
+    }
     if id == "ui.symmetryTransform" {
         return crate::symmetry_ui::can_transform(app);
     }
@@ -932,6 +939,17 @@ pub fn menu_items(app: &PhotocraftApp) -> Vec<MenuItem> {
             shortcut: sc.map(Into::into),
             enabled: is_enabled(app, id),
             checked: checked(app, id),
+            color: None,
+        });
+    }
+    for c in &app.services.commands {
+        extra.push(MenuItem {
+            id: c.id.into(),
+            label: c.label.into(),
+            path: c.menu.iter().map(|s| s.to_string()).collect(),
+            shortcut: app.session.prefs().shortcut(c.id, c.shortcut).map(Into::into),
+            enabled: true,
+            checked: c.checked.as_ref().map(|checked| checked()),
             color: None,
         });
     }

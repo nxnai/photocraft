@@ -88,7 +88,8 @@ pub fn bindings(app: &PhotocraftApp) -> Vec<(String, KeyboardShortcut)> {
     // A key the user assigned in Edit › Keyboard Shortcuts belongs to that command, ahead of any
     // default that still names it (#1272): OK clears the old owner's row, but that row can be
     // another id for the same item, or a default the dialog doesn't list.
-    let mut candidates: Vec<(&str, Option<&str>)> = actions.chain(ui).chain(engine).chain(catalog).chain(overrides).chain(secondary).collect();
+    let shell = app.services.commands.iter().map(|c| (c.id, prefs.shortcut(c.id, c.shortcut)));
+    let mut candidates: Vec<(&str, Option<&str>)> = actions.chain(shell).chain(ui).chain(engine).chain(catalog).chain(overrides).chain(secondary).collect();
     candidates.sort_by_key(|(id, sc)| !(sc.is_some() && prefs.shortcuts.get(*id).map(String::as_str) == *sc));
     let mut all: Vec<(String, KeyboardShortcut)> = Vec::new();
     for (id, sc) in candidates {
