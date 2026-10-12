@@ -48,10 +48,13 @@ pub enum ThemeKind {
     BreezeLight,
     /// An adaptation of KDE Plasma's Breeze Dark look.
     BreezeDark,
+    /// Arden's dark surfaces (black chrome, white type, one blue accent), for the editor Arden
+    /// embeds; Pro's Photoshop layout.
+    Arden,
 }
 
 impl ThemeKind {
-    pub const ALL: [ThemeKind; 12] = [
+    pub const ALL: [ThemeKind; 13] = [
         ThemeKind::Pro,
         ThemeKind::ProMedium,
         ThemeKind::ProLightGray,
@@ -64,6 +67,7 @@ impl ThemeKind {
         ThemeKind::AdwaitaDark,
         ThemeKind::BreezeLight,
         ThemeKind::BreezeDark,
+        ThemeKind::Arden,
     ];
     pub fn label(self) -> &'static str {
         match self {
@@ -79,6 +83,7 @@ impl ThemeKind {
             ThemeKind::SolarizedDark => "Solarized Dark",
             ThemeKind::BreezeLight => "Breeze Light",
             ThemeKind::BreezeDark => "Breeze Dark",
+            ThemeKind::Arden => "Arden",
         }
     }
     /// The canonical name: `ui.set {theme}` accepts it and the Window › Theme commands are
@@ -97,11 +102,13 @@ impl ThemeKind {
             ThemeKind::SolarizedDark => "solarizedDark",
             ThemeKind::BreezeLight => "breezeLight",
             ThemeKind::BreezeDark => "breezeDark",
+            ThemeKind::Arden => "arden",
         }
     }
-    /// Photoshop-grammar layout (tab strips, flat panels): the four Pro brightness levels.
+    /// Photoshop-grammar layout (tab strips, flat panels): the four Pro brightness levels, and
+    /// Arden, which recolours Pro.
     pub fn is_pro(self) -> bool {
-        matches!(self, ThemeKind::Pro | ThemeKind::ProMedium | ThemeKind::ProLightGray | ThemeKind::ProLight)
+        matches!(self, ThemeKind::Pro | ThemeKind::ProMedium | ThemeKind::ProLightGray | ThemeKind::ProLight | ThemeKind::Arden)
     }
     pub fn next(self) -> Self {
         let i = Self::ALL.iter().position(|k| *k == self).unwrap_or(0);
@@ -121,6 +128,7 @@ impl ThemeKind {
             "solarizeddark" | "solarized" => Some(ThemeKind::SolarizedDark),
             "breezelight" | "breeze" | "kde" | "kdelight" | "plasma" | "plasmalight" => Some(ThemeKind::BreezeLight),
             "breezedark" | "kdedark" | "plasmadark" => Some(ThemeKind::BreezeDark),
+            "arden" => Some(ThemeKind::Arden),
             _ => None,
         }
     }
@@ -211,6 +219,35 @@ impl Tokens {
                 separator: Color32::from_rgb(62, 62, 62),
                 tab_strip: Color32::from_rgb(74, 74, 74),
                 row_selected: Color32::from_rgb(107, 107, 107),
+                ..Tokens::for_kind(ThemeKind::Pro)
+            },
+            // Arden's dark surfaces (its ramp-900/800/700 greys, ramp-300/400 secondary type), its
+            // status-progress blue for selection, and white primary buttons with ink text.
+            ThemeKind::Arden => Tokens {
+                kind,
+                chrome: Color32::from_rgb(26, 26, 26),
+                canvas: Color32::from_rgb(23, 24, 26),
+                canvas_dot: Color32::from_rgb(32, 33, 36),
+                dock: Color32::from_rgb(10, 10, 10),
+                card: Color32::from_rgb(26, 26, 26),
+                card_border: Color32::from_rgb(10, 10, 10),
+                field: Color32::from_rgb(42, 42, 42),
+                field_border: Color32::from_rgb(64, 64, 64),
+                hover: Color32::from_rgb(50, 50, 50),
+                pressed: Color32::from_rgb(64, 64, 64),
+                text: Color32::from_rgb(250, 250, 250),
+                text_dim: Color32::from_rgb(212, 212, 212),
+                text_faint: Color32::from_rgb(176, 176, 176),
+                icon: Color32::from_rgb(230, 230, 230),
+                accent: Color32::from_rgb(61, 111, 166),
+                accent_soft: Color32::from_rgb(52, 52, 52),
+                accent_border: Color32::from_rgb(61, 111, 166),
+                separator: Color32::from_rgb(10, 10, 10),
+                primary_bg: Color32::from_rgb(245, 245, 245),
+                primary_text: Color32::from_rgb(23, 23, 23),
+                tab_strip: Color32::from_rgb(16, 16, 16),
+                row_selected: Color32::from_rgb(44, 58, 76),
+                histogram_bg: Color32::from_rgb(23, 24, 26),
                 ..Tokens::for_kind(ThemeKind::Pro)
             },
             // Photoshop's medium-light brightness: #B8B8B8 panels, dark text, a mid-grey canvas.
