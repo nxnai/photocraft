@@ -439,7 +439,8 @@ fn pct(ui: &mut egui::Ui, label: &str, v: &mut f32) {
 
 /// Options bar for the retouching and smart-selection tools. Returns false for other tools.
 pub fn options_bar(app: &mut PhotocraftApp, ui: &mut egui::Ui, tool: Tool) -> bool {
-    if !tool.is_brushlike() && !matches!(tool, Tool::QuickSelection | Tool::ObjectSelection | Tool::Patch | Tool::ContentAwareMove | Tool::RedEye)
+    if !tool.is_brushlike()
+        && !matches!(tool, Tool::QuickSelection | Tool::ObjectSelection | Tool::AiSelect | Tool::Patch | Tool::ContentAwareMove | Tool::RedEye)
         || matches!(tool, Tool::Brush | Tool::Pencil | Tool::MixerBrush | Tool::Eraser)
     {
         return false;

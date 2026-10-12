@@ -149,6 +149,8 @@ pub fn toolbar(app: &mut PhotocraftApp, ui: &mut egui::Ui) {
                         }
                         let rows: Vec<&[(usize, Vec<Tool>)]> = if double { section.chunks(2).collect() } else { section.chunks(1).collect() };
                         for row in rows {
+                            // The shell's own buttons (`Services::toolbox_actions`) follow AI Select.
+                            let actions_after = row.iter().any(|(_, slot)| slot.contains(&Tool::AiSelect));
                             ui.horizontal(|ui| {
                                 for (slot_index, slot) in row.iter() {
                                     let key = egui::Id::new(("tool-slot", *slot_index));
@@ -269,12 +271,13 @@ pub fn toolbar(app: &mut PhotocraftApp, ui: &mut egui::Ui) {
                                     }
                                 }
                             });
-                        }
-                    }
-                    // The shell's own buttons (`Services::toolbox_actions`), after the tools.
-                    for action in app.services.toolbox_actions.iter_mut() {
-                        if icons::button(ui, action.icon, bx, false, &action.tip).clicked() {
-                            (action.run)();
+                            if actions_after {
+                                for action in app.services.toolbox_actions.iter_mut() {
+                                    if icons::button(ui, action.icon, bx, false, &action.tip).clicked() {
+                                        (action.run)();
+                                    }
+                                }
+                            }
                         }
                     }
                     if t.pro && icons::button(ui, "ellipsis", bx, false, tl!("Edit Toolbar…")).clicked() {
