@@ -349,12 +349,6 @@ pub fn finish_object_selection(app: &mut PhotocraftApp, start: [f64; 2], end: [f
     let (x, y) = (start[0].min(end[0]), start[1].min(end[1]));
     let (w, h) = ((end[0] - start[0]).abs(), (end[1] - start[1]).abs());
     let sample_all = app.ui.tool_options.sample_all_layers;
-    if let Some(segment) = app.services.object_select.as_mut() {
-        let rect = (w >= 2.0 && h >= 2.0).then_some([x, y, w, h]);
-        if segment(crate::ObjectSelectRequest { rect, point: end, mods, sample_all_layers: sample_all }) {
-            return;
-        }
-    }
     if w < 2.0 || h < 2.0 {
         let size = app.session.tools.brush.size;
         let mode = if mods.alt { "subtract" } else { "add" };
@@ -371,6 +365,21 @@ pub fn finish_object_selection(app: &mut PhotocraftApp, start: [f64; 2], end: [f
     };
     let r = app.run("select.object", json!({"rect": [x.round(), y.round(), w.round(), h.round()], "mode": mode, "sampleAllLayers": sample_all}));
     report_smart_result(app, r, tl!("Object Selection found nothing there — try a tighter rectangle"));
+}
+
+/// AI Select's release: the click or rectangle goes to the shell's segmenter
+/// (`Services::object_select`), or to Object Selection when there is none or it declines.
+pub fn finish_ai_selection(app: &mut PhotocraftApp, start: [f64; 2], end: [f64; 2], mods: egui::Modifiers) {
+    let (x, y) = (start[0].min(end[0]), start[1].min(end[1]));
+    let (w, h) = ((end[0] - start[0]).abs(), (end[1] - start[1]).abs());
+    let sample_all = app.ui.tool_options.sample_all_layers;
+    if let Some(segment) = app.services.object_select.as_mut() {
+        let rect = (w >= 2.0 && h >= 2.0).then_some([x, y, w, h]);
+        if segment(crate::ObjectSelectRequest { rect, point: end, mods, sample_all_layers: sample_all }) {
+            return;
+        }
+    }
+    finish_object_selection(app, start, end, mods);
 }
 
 /// Reports a smart-selection command result in the status bar. Engine errors are already
@@ -605,9 +614,9 @@ pub fn options_bar(app: &mut PhotocraftApp, ui: &mut egui::Ui, tool: Tool) -> bo
                 report_smart_result(app, r, tl!("No subject found — try Object Selection or the Lasso"));
             }
         }
-        // A shell's segmenter (`Services::object_select`) takes a click or a rectangle on the
+        // The shell's segmenter (`Services::object_select`) takes a click or a rectangle on the
         // flattened image; it has nothing to set.
-        Tool::ObjectSelection if app.services.object_select.is_some() => {
+        Tool::AiSelect => {
             opt(ui, "Click the object or drag a box around it");
             crate::widgets::vline(ui, 22.0);
             opt(ui, &format!("{} adds  ·  {} subtracts  ·  [ ] smaller or larger part", crate::shortcuts::pretty("Shift"), crate::shortcuts::pretty("Alt")));

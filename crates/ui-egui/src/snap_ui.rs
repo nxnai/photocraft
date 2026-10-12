@@ -106,6 +106,7 @@ fn is_point_tool(t: Tool) -> bool {
             | Tool::SingleColumnMarquee
             | Tool::Crop
             | Tool::ObjectSelection
+            | Tool::AiSelect
             | Tool::Pen
             | Tool::CurvaturePen
             | Tool::Rectangle

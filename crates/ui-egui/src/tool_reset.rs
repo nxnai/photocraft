@@ -107,6 +107,7 @@ fn is_selection_tool(tool: Tool) -> bool {
             | Tool::MagicWand
             | Tool::QuickSelection
             | Tool::ObjectSelection
+            | Tool::AiSelect
     )
 }
 
@@ -125,6 +126,7 @@ pub fn reset_options(o: &mut ToolOptions, tool: Tool) {
         Tool::MagneticLasso => reset!(feather, anti_alias, magnetic_width, magnetic_contrast, magnetic_frequency, magnetic_pressure),
         Tool::MagicWand => reset!(tolerance, anti_alias, contiguous, sample_all_layers),
         Tool::QuickSelection | Tool::ObjectSelection => reset!(sample_all_layers, enhance_edge),
+        Tool::AiSelect => {}
         Tool::Crop => reset!(
             crop_ratio,
             crop_delete,

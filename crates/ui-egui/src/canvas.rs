@@ -3396,6 +3396,13 @@ pub fn canvas_view(app: &mut PhotocraftApp, ui: &mut egui::Ui, idx: usize, rect:
         crate::distort_ui::draw_overlay(app, &painter, &xf);
         crate::perspective_crop_ui::draw_overlay(app, &painter, &xf);
         crate::retouch_ui::draw_source_marker(app, &painter, &xf);
+        // AI Select's hover preview, drawn by the shell over the document (not while dragging).
+        if tool == Tool::AiSelect
+            && let Some(paint) = app.services.ai_select_canvas.as_mut()
+        {
+            let hover = response.hover_pos().filter(|_| app.drag.is_none()).map(|p| xf.to_doc(p));
+            paint(&painter, img_rect, hover);
+        }
         crate::vector_ui::draw_overlay(app, &painter, &xf, &doc);
         crate::symmetry_ui::draw(app, &painter, &xf);
         crate::analysis_ui::draw_overlay(app, &painter, &xf);
@@ -4313,7 +4320,7 @@ fn draw_drag_preview(app: &mut PhotocraftApp, painter: &egui::Painter, xf: &View
         }
         // Nothing selected yet: no outline, as the release would deselect.
         Tool::RectMarquee | Tool::EllipseMarquee if marquee.is_none() => {}
-        Tool::RectMarquee | Tool::EllipseMarquee | Tool::ObjectSelection => {
+        Tool::RectMarquee | Tool::EllipseMarquee | Tool::ObjectSelection | Tool::AiSelect => {
             // Marching ants, visible on any pixels (#172): built in document space and mapped
             // corner by corner, so a rotated view shows them where the release commits (#2512).
             let pts = marquee_drag_ants(d, xf, marquee);
@@ -5110,6 +5117,7 @@ pub(crate) fn finish_gesture(app: &mut PhotocraftApp, d: Drag) {
     }
     match d.tool {
         Tool::ObjectSelection => crate::retouch_ui::finish_object_selection(app, d.start, [end[0], end[1]], d.modifiers),
+        Tool::AiSelect => crate::retouch_ui::finish_ai_selection(app, d.start, [end[0], end[1]], d.modifiers),
         Tool::FreeformPen => crate::vector_ui::freeform_finish(app, &d.points, d.lasso.as_ref().map_or(&[], |l| l.straight())),
         // Photoshop: a click without dragging opens Create Rectangle / Ellipse / … instead.
         t if crate::vector_ui::is_shape_tool(t)

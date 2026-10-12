@@ -116,6 +116,9 @@ pub enum Tool {
     Sponge,
     QuickSelection,
     ObjectSelection,
+    /// A selection tool the shell implements (`Services::object_select`, `Services::ai_select_canvas`):
+    /// Object Selection's click and rectangle gestures, with the shell's segmenter and hover preview.
+    AiSelect,
     Pen,
     FreeformPen,
     CurvaturePen,
@@ -138,7 +141,7 @@ pub enum Tool {
 }
 
 impl Tool {
-    pub const ALL: [Tool; 67] = [
+    pub const ALL: [Tool; 68] = [
         Tool::Move,
         Tool::Artboard,
         Tool::RectMarquee,
@@ -189,6 +192,7 @@ impl Tool {
         Tool::Sponge,
         Tool::QuickSelection,
         Tool::ObjectSelection,
+        Tool::AiSelect,
         Tool::Pen,
         Tool::FreeformPen,
         Tool::CurvaturePen,
@@ -263,6 +267,7 @@ impl Tool {
             Tool::Sponge => "Sponge Tool",
             Tool::QuickSelection => "Quick Selection Tool",
             Tool::ObjectSelection => "Object Selection Tool",
+            Tool::AiSelect => "AI Select Tool",
             Tool::Pen => "Pen Tool",
             Tool::FreeformPen => "Freeform Pen Tool",
             Tool::CurvaturePen => "Curvature Pen Tool",
@@ -340,6 +345,7 @@ impl Tool {
             Tool::SingleRowMarquee | Tool::SingleColumnMarquee => '\0',
             Tool::Dodge | Tool::Burn | Tool::Sponge => 'O',
             Tool::QuickSelection | Tool::ObjectSelection => 'W',
+            Tool::AiSelect => '\0',
             Tool::Pen | Tool::FreeformPen | Tool::CurvaturePen | Tool::AddAnchorPoint | Tool::DeleteAnchorPoint | Tool::ConvertPoint => 'P',
             Tool::PathSelection | Tool::DirectSelection => 'A',
             Tool::Rectangle | Tool::EllipseShape | Tool::Triangle | Tool::Polygon | Tool::Line | Tool::CustomShape => 'U',

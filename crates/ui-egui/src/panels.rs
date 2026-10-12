@@ -21,6 +21,7 @@ const TOOL_SECTIONS: &[&[&[Tool]]] = &[
         &[Tool::RectMarquee, Tool::EllipseMarquee, Tool::SingleRowMarquee, Tool::SingleColumnMarquee],
         &[Tool::Lasso, Tool::PolygonLasso, Tool::MagneticLasso],
         &[Tool::ObjectSelection, Tool::QuickSelection, Tool::MagicWand],
+        &[Tool::AiSelect],
         &[Tool::Crop, Tool::PerspectiveCrop, Tool::Slice, Tool::SliceSelect],
         &[Tool::Frame],
         &[Tool::Eyedropper, Tool::ColorSampler, Tool::Ruler, Tool::Note, Tool::Count],
@@ -268,6 +269,12 @@ pub fn toolbar(app: &mut PhotocraftApp, ui: &mut egui::Ui) {
                                     }
                                 }
                             });
+                        }
+                    }
+                    // The shell's own buttons (`Services::toolbox_actions`), after the tools.
+                    for action in app.services.toolbox_actions.iter_mut() {
+                        if icons::button(ui, action.icon, bx, false, &action.tip).clicked() {
+                            (action.run)();
                         }
                     }
                     if t.pro && icons::button(ui, "ellipsis", bx, false, tl!("Edit Toolbar…")).clicked() {

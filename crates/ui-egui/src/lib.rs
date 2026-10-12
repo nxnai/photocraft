@@ -372,9 +372,21 @@ pub struct ObjectSelectRequest {
     pub sample_all_layers: bool,
 }
 
-/// Takes over an Object Selection request (see [`Services::object_select`]). Returns false to
-/// leave it to the built-in GrabCut / Quick Selection.
+/// Takes over an AI Select request (see [`Services::object_select`]). Returns false to leave it
+/// to the built-in Object Selection (GrabCut).
 pub type ObjectSelectFn = Box<dyn FnMut(ObjectSelectRequest) -> bool>;
+
+/// Draws over the canvas while AI Select is the tool: the painter, the document's rect on screen,
+/// and the pointer in document pixels (`None` off the canvas or while dragging).
+pub type AiSelectCanvasFn = Box<dyn FnMut(&egui::Painter, egui::Rect, Option<[f64; 2]>)>;
+
+/// A button the shell adds to the toolbar, below the tools.
+pub struct ToolboxAction {
+    /// An icon name (`icons::exists`).
+    pub icon: &'static str,
+    pub tip: String,
+    pub run: Box<dyn FnMut()>,
+}
 
 /// Platform services injected by the app binary (file dialogs, codecs), keeping this crate free of
 /// I/O dependencies.
@@ -415,9 +427,13 @@ pub struct Services {
     pub beep: Option<fn()>,
     /// Files delivered asynchronously (web drag-and-drop): drained every frame.
     pub inbox: Option<Inbox>,
-    /// Object Selection's segmenter, in place of the built-in GrabCut: a shell can run a learned
-    /// model (off the UI thread) and apply its mask itself. `None` keeps GrabCut.
+    /// AI Select's segmenter: a shell runs a learned model (off the UI thread) and applies its
+    /// mask itself. Without one, AI Select works as Object Selection (GrabCut).
     pub object_select: Option<ObjectSelectFn>,
+    /// AI Select's hover preview (the object under the pointer, before the click).
+    pub ai_select_canvas: Option<AiSelectCanvasFn>,
+    /// The shell's own toolbar buttons.
+    pub toolbox_actions: Vec<ToolboxAction>,
     /// PhotoCraft runs inside another product's shell: no PhotoCraft brand mark, community
     /// links (Discord, GitHub, website), Help menu or appearance toggle, and a plain Home screen.
     pub embedded: bool,
