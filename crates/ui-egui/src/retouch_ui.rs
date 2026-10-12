@@ -349,6 +349,12 @@ pub fn finish_object_selection(app: &mut PhotocraftApp, start: [f64; 2], end: [f
     let (x, y) = (start[0].min(end[0]), start[1].min(end[1]));
     let (w, h) = ((end[0] - start[0]).abs(), (end[1] - start[1]).abs());
     let sample_all = app.ui.tool_options.sample_all_layers;
+    if let Some(segment) = app.services.object_select.as_mut() {
+        let rect = (w >= 2.0 && h >= 2.0).then_some([x, y, w, h]);
+        if segment(crate::ObjectSelectRequest { rect, point: end, mods, sample_all_layers: sample_all }) {
+            return;
+        }
+    }
     if w < 2.0 || h < 2.0 {
         let size = app.session.tools.brush.size;
         let mode = if mods.alt { "subtract" } else { "add" };

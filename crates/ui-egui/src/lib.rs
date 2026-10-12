@@ -361,6 +361,21 @@ pub type CapsLockFn = Box<dyn FnMut() -> bool>;
 /// Called once per frame; `None` when the window is decorated or the platform needs no fixing.
 pub type WindowFrameFn = Box<dyn FnMut()>;
 
+/// What Object Selection asks for once the pointer is released: the dragged rectangle, or a click
+/// at `point` when the drag stayed under 2 px. Document pixels.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ObjectSelectRequest {
+    /// `[x, y, w, h]`, normalised (non-negative size); `None` for a click.
+    pub rect: Option<[f64; 4]>,
+    pub point: [f64; 2],
+    pub mods: egui::Modifiers,
+    pub sample_all_layers: bool,
+}
+
+/// Takes over an Object Selection request (see [`Services::object_select`]). Returns false to
+/// leave it to the built-in GrabCut / Quick Selection.
+pub type ObjectSelectFn = Box<dyn FnMut(ObjectSelectRequest) -> bool>;
+
 /// Platform services injected by the app binary (file dialogs, codecs), keeping this crate free of
 /// I/O dependencies.
 #[derive(Default)]
@@ -400,6 +415,9 @@ pub struct Services {
     pub beep: Option<fn()>,
     /// Files delivered asynchronously (web drag-and-drop): drained every frame.
     pub inbox: Option<Inbox>,
+    /// Object Selection's segmenter, in place of the built-in GrabCut: a shell can run a learned
+    /// model (off the UI thread) and apply its mask itself. `None` keeps GrabCut.
+    pub object_select: Option<ObjectSelectFn>,
     /// OS clipboard images: copies go out, screenshots and images from other apps come in.
     pub clipboard_set_image: Option<ClipboardSetFn>,
     pub clipboard_get_image: Option<ClipboardGetFn>,
