@@ -20,10 +20,13 @@ log = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # Effect distance fields are computed in parallel bands.
-rayon = { workspace = true }
 
 [dev-dependencies]
 wgpu = { version = "30" }
 pollster = "1"
 # Shape layers in the effect parity tests.
 photocraft-vector = { workspace = true }
+
+# Parallel paths run on native and on wasm built with +atomics (the page starts a thread pool); plain wasm stays single-threaded.
+[target.'cfg(any(not(target_arch = "wasm32"), target_feature = "atomics"))'.dependencies]
+rayon = { workspace = true }

@@ -4,7 +4,9 @@
 //! [`photocraft_engine::Session::execute`], and all UI state lives in [`state::UiState`] (plain
 //! data). The [`control`] module exposes both to automation, so agents can drive and inspect every
 //! part of the interface.
-#![forbid(unsafe_code)]
+// The multi-core wasm build needs two `unsafe impl`s (gpu_canvas.rs, `Resources`); every other build forbids unsafe.
+#![cfg_attr(not(all(target_arch = "wasm32", target_feature = "atomics")), forbid(unsafe_code))]
+#![cfg_attr(all(target_arch = "wasm32", target_feature = "atomics"), deny(unsafe_code))]
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
 /// Translate a string literal into the current UI language: `tl!("Image Size…")`.

@@ -4,8 +4,15 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
-[lints]
-workspace = true
+# The workspace lints, except that `unsafe_code` is denied rather than forbidden: the multi-core wasm
+# build allows its two `unsafe impl`s in gpu_canvas.rs (see src/lib.rs); lib.rs still forbids unsafe
+# in every other build.
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+dbg_macro = "warn"
+todo = "warn"
 
 [dependencies]
 craft-ui = { workspace = true }
@@ -39,7 +46,6 @@ base64 = "0.22"
 flate2 = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-rayon = { workspace = true }
 # Safe native UI-language APIs (Windows/macOS); no subprocess or web dependency.
 sys-locale = "=0.3.2"
 
@@ -62,3 +68,7 @@ photocraft-psd = { workspace = true }
 flate2 = { workspace = true }
 serde_json = { workspace = true }
 toml = "1"
+
+# Parallel paths run on native and on wasm built with +atomics (the page starts a thread pool); plain wasm stays single-threaded.
+[target.'cfg(any(not(target_arch = "wasm32"), target_feature = "atomics"))'.dependencies]
+rayon = { workspace = true }

@@ -15,7 +15,6 @@ photocraft-doc = { workspace = true }
 photocraft-vector = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-rayon = { workspace = true }
 
 [dev-dependencies]
 proptest = { workspace = true }
@@ -25,3 +24,7 @@ photocraft-paint = { workspace = true }
 [[bench]]
 name = "compose"
 harness = false
+
+# Parallel paths run on native and on wasm built with +atomics (the page starts a thread pool); plain wasm stays single-threaded.
+[target.'cfg(any(not(target_arch = "wasm32"), target_feature = "atomics"))'.dependencies]
+rayon = { workspace = true }

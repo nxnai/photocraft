@@ -35,7 +35,6 @@ photocraft-heif = { path = "../heif", optional = true }
 
 # Orientation is applied a band of rows per task on native; wasm stays single-threaded.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-rayon.workspace = true
 # EXR block (de)compression runs on the rayon pool natively; wasm stays single-threaded.
 exr = { version = "1.73", default-features = false, features = ["rayon"] }
 
@@ -46,3 +45,7 @@ image = { workspace = true, features = ["png", "jpeg", "tiff"] }
 
 [lints]
 workspace = true
+
+# Parallel paths run on native and on wasm built with +atomics (the page starts a thread pool); plain wasm stays single-threaded.
+[target.'cfg(any(not(target_arch = "wasm32"), target_feature = "atomics"))'.dependencies]
+rayon = { workspace = true }

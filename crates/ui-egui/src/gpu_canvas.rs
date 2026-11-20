@@ -1264,6 +1264,17 @@ struct Resources {
     style: CanvasStyle,
 }
 
+// egui's callback-resource map wants `Send + Sync`. wgpu's web types are neither when the module is
+// built with `+atomics` (the multi-core build: wgpu only fakes them for a single-threaded module).
+// They are only ever created and used on the browser's main thread, the one that runs the UI and
+// the paint callback; the rayon workers of that build run CPU pixel code and never see them.
+#[cfg(all(target_arch = "wasm32", target_feature = "atomics"))]
+#[allow(unsafe_code)]
+unsafe impl Send for Resources {}
+#[cfg(all(target_arch = "wasm32", target_feature = "atomics"))]
+#[allow(unsafe_code)]
+unsafe impl Sync for Resources {}
+
 /// Canvas colours from Preferences › Transparency & Gamut.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CanvasStyle {
